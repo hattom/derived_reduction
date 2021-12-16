@@ -77,8 +77,8 @@ contains
 
   subroutine test_sub(tmp_arr, nloop, n)
     real, dimension(:), intent(inout) :: tmp_arr
-    integer, intent(in) :: nloop
-    integer :: i, ii, n
+    integer, intent(in) :: nloop, n
+    integer :: i, ii
 
     tmp_arr(:) = 0.0
     !$omp parallel do private(ii) reduction(+: tmp_arr)
