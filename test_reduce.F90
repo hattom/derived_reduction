@@ -1,3 +1,7 @@
+#ifndef DOCONC
+#define DOCONC
+#endif
+
 program test_reduce
   implicit none
 
@@ -5,7 +9,11 @@ program test_reduce
     real, allocatable, dimension(:) :: abc
   end type xyz
 
-  type(xyz) :: jkl
+  type(xyz) &
+#ifdef POINTER
+    & , target &
+#endif
+    & :: jkl
   integer :: n, i, nloop, ii
 
   n = 8
@@ -38,7 +46,22 @@ program test_reduce
 call test_sub(jkl%abc(:), nloop, n)
 print *, "subr:    ", jkl%abc
 
-#if 0
+#ifdef POINTER
+  jkl%abc(:) = 0.0
+  block
+    real, dimension(:), pointer :: tmp_ptr
+    tmp_ptr => jkl%abc
+    !$omp parallel do private(ii) reduction(+: tmp_ptr)
+    do i=1, nloop
+      ii = mod(i,n)+1
+      tmp_ptr(ii) = tmp_ptr(ii) + 1
+    enddo
+    !$omp end parallel do
+  end block
+  print *, "pointer: ", jkl%abc
+#endif
+
+#ifdef DERIVED_MEMBER
   jkl%abc(:) = 0.0
   !$omp parallel do private(ii) reduction(+: jkl%abc)
   do i=1, nloop
@@ -49,7 +72,7 @@ print *, "subr:    ", jkl%abc
   print *, jkl%abc
 #endif
 
-#if 0
+#ifdef DERIVED
   jkl%abc(:) = 0.0
   !$omp parallel do private(ii) reduction(+: jkl)
   do i=1, nloop
@@ -60,7 +83,7 @@ print *, "subr:    ", jkl%abc
   print *, jkl%abc
 #endif
 
-#if 0
+#ifdef ASSOCIATE
   jkl%abc(:) = 0.0
   associate(tmp_arr => jkl%abc)
     !$omp parallel do private(ii) reduction(+: tmp_arr)
@@ -71,6 +94,28 @@ print *, "subr:    ", jkl%abc
     !$omp end parallel do
   end associate
   print *, jkl%abc
+#endif
+
+#ifdef DOCONC
+  jkl%abc(:) = 0.0
+  do concurrent(i=1:nloop)
+    block
+      integer :: ii
+      ii = mod(i,n)+1
+      jkl%abc(ii) = jkl%abc(ii) + 1
+    end block
+  enddo
+  print *, "doconc:  ", jkl%abc
+#endif
+
+#ifdef DOCONC_LOCAL
+  jkl%abc(:) = 0.0
+  do concurrent(i=1:nloop) local(ii)
+    integer :: ii
+    ii = mod(i,n)+1
+    jkl%abc(ii) = jkl%abc(ii) + 1
+  enddo
+  print *, "doconc2: ", jkl%abc
 #endif
 
 contains
