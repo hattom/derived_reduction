@@ -1,5 +1,13 @@
-FC = gfortran
-FFLAGS = -O3 -ftree-parallelize-loops=${OMP_NUM_THREADS} -fopenmp
+COMPILER = GCC
+
+ifeq ($(COMPILER), GCC)
+	FC = gfortran
+	FFLAGS = -O3 -fopenmp
+else ifeq ($(COMPILER), NVHPC)
+	FC=nvfortran
+	FFLAGS=-O3 -mp -stdpar=multicore
+endif
+
 LDFLAGS = 
 
 EXEC = test_reduce
