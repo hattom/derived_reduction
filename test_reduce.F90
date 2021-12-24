@@ -65,7 +65,7 @@ program test_reduce
     integer :: ii
     do i=1, nloop
       ii = mod(i,n)+1
-      jkl%abc(ii) = jkl%abc(ii) + 1
+      jkl%abc(ii) = jkl%abc(ii) + 1.
     enddo
   end block
   call print_array(jkl%abc, 'serial')
@@ -78,7 +78,7 @@ program test_reduce
     !$omp parallel do private(ii) reduction(+: tmp_arr)
     do i=1, nloop
       ii = mod(i,n)+1
-      tmp_arr(ii) = tmp_arr(ii) + 1
+      tmp_arr(ii) = tmp_arr(ii) + 1.
     enddo
     !$omp end parallel do
     jkl%abc(:) = tmp_arr(:)
@@ -105,7 +105,7 @@ program test_reduce
     !$omp parallel do private(ii) reduction(+: tmp_ptr)
     do i=1, nloop
       ii = mod(i,n)+1
-      tmp_ptr(ii) = tmp_ptr(ii) + 1
+      tmp_ptr(ii) = tmp_ptr(ii) + 1.
     enddo
     !$omp end parallel do
   end block
@@ -120,7 +120,7 @@ program test_reduce
     tmp_ptr => jkl%abc
     do i=1, nloop
       ii = mod(i,n)+1
-      tmp_ptr(ii) = tmp_ptr(ii) + 1
+      tmp_ptr(ii) = tmp_ptr(ii) + 1.
     enddo
   end block
   call print_array(jkl%abc, 'ptr ser')
@@ -141,7 +141,7 @@ program test_reduce
   !$omp parallel do private(ii) reduction(+: jkl%abc)
   do i=1, nloop
     ii = mod(i,n)+1
-    jkl%abc(ii) = jkl%abc(ii) + 1
+    jkl%abc(ii) = jkl%abc(ii) + 1.
   enddo
   !$omp end parallel do
   call print_array(jkl%abc, 'der mem')
@@ -152,7 +152,7 @@ program test_reduce
   !$omp parallel do private(ii) reduction(+: jkl)
   do i=1, nloop
     ii = mod(i,n)+1
-    jkl%abc(ii) = jkl%abc(ii) + 1
+    jkl%abc(ii) = jkl%abc(ii) + 1.
   enddo
   !$omp end parallel do
   call print_array(jkl%abc, 'der')
@@ -166,7 +166,7 @@ program test_reduce
       !$omp parallel do private(ii) reduction(+: tmp_arr)
       do i=1, nloop
         ii = mod(i,n)+1
-        tmp_arr(ii) = tmp_arr(ii) + 1
+        tmp_arr(ii) = tmp_arr(ii) + 1.
       enddo
       !$omp end parallel do
     end associate
@@ -196,7 +196,7 @@ program test_reduce
     block
       integer :: ii
       ii = mod(i,n)+1
-      jkl%abc(ii) = jkl%abc(ii) + 1
+      jkl%abc(ii) = jkl%abc(ii) + 1.
     end block
   enddo
   call print_array(jkl%abc, 'doc bl')
@@ -208,7 +208,7 @@ program test_reduce
     integer :: ii
     do concurrent(i=1:nloop) local(ii)
       ii = mod(i,n)+1
-      jkl%abc(ii) = jkl%abc(ii) + 1
+      jkl%abc(ii) = jkl%abc(ii) + 1.
     enddo
   end block
   call print_array(jkl%abc, 'doc loc')
@@ -223,7 +223,7 @@ program test_reduce
       block
         integer :: ii
         ii = mod(i,n)+1
-        tmp_arr(ii) = tmp_arr(ii) + 1
+        tmp_arr(ii) = tmp_arr(ii) + 1.
       end block
     enddo
     jkl%abc(:) = tmp_arr(:)
@@ -237,7 +237,7 @@ program test_reduce
     integer :: ii
     do concurrent(i=1:nloop) local(ii) reduce(+: jkl%abc)
       ii = mod(i,n)+1
-      jkl%abc(ii) = jkl%abc(ii) + 1
+      jkl%abc(ii) = jkl%abc(ii) + 1.
     enddo
   end block
   call print_array(jkl%abc, 'doc red')
@@ -255,7 +255,7 @@ contains
     !$omp parallel do private(ii) reduction(+: tmp_arr)
     do i=1, nloop
       ii = mod(i,n)+1
-      tmp_arr(ii) = tmp_arr(ii) + 1
+      tmp_arr(ii) = tmp_arr(ii) + 1.
     enddo
     !$omp end parallel do
   end subroutine test_sub_omp
@@ -268,7 +268,7 @@ contains
     tmp_arr(:) = 0.0
     do i=1, nloop
       ii = mod(i,n)+1
-      tmp_arr(ii) = tmp_arr(ii) + 1
+      tmp_arr(ii) = tmp_arr(ii) + 1.
     enddo
   end subroutine test_sub_serial
 
@@ -282,7 +282,7 @@ contains
     do i=1, nloop
       ii = mod(i,n)+1
       !$omp atomic update
-      tmp_arr(ii) = tmp_arr(ii) + 1
+      tmp_arr(ii) = tmp_arr(ii) + 1.
     enddo
     !$omp end parallel do
   end subroutine test_sub_atomic
