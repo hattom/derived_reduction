@@ -68,7 +68,7 @@ program test_reduce
       jkl%abc(ii) = jkl%abc(ii) + 1
     enddo
   end block
-  print *, "serial:  ", jkl%abc
+  call print_array(jkl%abc, 'serial')
 
   jkl%abc(:) = 0.0
   block
@@ -83,17 +83,17 @@ program test_reduce
     !$omp end parallel do
     jkl%abc(:) = tmp_arr(:)
   end block
-  print *, "omp tmp: ", jkl%abc
+  call print_array(jkl%abc, 'omp tmp')
 
-call test_sub_omp(jkl%abc(:), nloop, n)
-print *, "subr:    ", jkl%abc
+  call test_sub_omp(jkl%abc(:), nloop, n)
+  call print_array(jkl%abc, 'subr')
 
-call test_sub_serial(jkl%abc(:), nloop, n)
-print *, "subr_ser:", jkl%abc
+  call test_sub_serial(jkl%abc(:), nloop, n)
+  call print_array(jkl%abc, 'subr ser')
 
 #ifdef SUBR_ATOMIC
-call test_sub_atomic(jkl%abc(:), nloop, n)
-print *, "subr_atm:", jkl%abc
+  call test_sub_atomic(jkl%abc(:), nloop, n)
+  call print_array(jkl%abc, 'subr atm')
 #endif
 
 #ifdef _POINTER
@@ -109,7 +109,7 @@ print *, "subr_atm:", jkl%abc
     enddo
     !$omp end parallel do
   end block
-  print *, "pointer: ", jkl%abc
+  call print_array(jkl%abc, 'pointer')
 #endif
 
 #ifdef _POINTER
@@ -123,7 +123,7 @@ print *, "subr_atm:", jkl%abc
       tmp_ptr(ii) = tmp_ptr(ii) + 1
     enddo
   end block
-  print *, "ptr ser: ", jkl%abc
+  call print_array(jkl%abc, 'ptr ser')
 #endif
 
 #ifdef _POINTER_FUNC
@@ -133,7 +133,7 @@ print *, "subr_atm:", jkl%abc
     tmp_ptr => jkl%abc
     call test_sub_omp(tmp_ptr(:), nloop, n)
   end block
-  print *, "ptr fnc: ", jkl%abc
+  call print_array(jkl%abc, 'ptr fn')
 #endif
 
 #ifdef DERIVED_MEMBER
@@ -144,7 +144,7 @@ print *, "subr_atm:", jkl%abc
     jkl%abc(ii) = jkl%abc(ii) + 1
   enddo
   !$omp end parallel do
-  print *, "der mem: ", jkl%abc
+  call print_array(jkl%abc, 'der mem')
 #endif
 
 #ifdef DERIVED
@@ -155,7 +155,7 @@ print *, "subr_atm:", jkl%abc
     jkl%abc(ii) = jkl%abc(ii) + 1
   enddo
   !$omp end parallel do
-  print *, "derived: ", jkl%abc
+  call print_array(jkl%abc, 'der')
 #endif
 
 #ifdef _ASSOCIATE
@@ -171,7 +171,7 @@ print *, "subr_atm:", jkl%abc
       !$omp end parallel do
     end associate
   end block
-  print *, "assoc:   ", jkl%abc
+  call print_array(jkl%abc, 'ass')
 #endif
 
 #ifdef _ASSOCIATE_FUNC
@@ -179,7 +179,7 @@ print *, "subr_atm:", jkl%abc
   associate(tmp_arr => jkl%abc)
     call test_sub_omp(tmp_arr(:), nloop, n)
   end associate
-  print *, "assocfn: ", jkl%abc
+  call print_array(jkl%abc, 'ass fn')
 #endif
 
 #ifdef _ASSOCIATE_SERIAL
@@ -187,7 +187,7 @@ print *, "subr_atm:", jkl%abc
   associate(tmp_arr => jkl%abc)
     call test_sub_serial(tmp_arr(:), nloop, n)
   end associate
-  print *, "assocsf: ", jkl%abc
+  call print_array(jkl%abc, 'ass s fn')
 #endif
 
 #ifdef DOCONC
@@ -199,7 +199,7 @@ print *, "subr_atm:", jkl%abc
       jkl%abc(ii) = jkl%abc(ii) + 1
     end block
   enddo
-  print *, "doconcB: ", jkl%abc
+  call print_array(jkl%abc, 'doc bl')
 #endif
 
 #ifdef DOCONC_LOCAL
@@ -211,7 +211,7 @@ print *, "subr_atm:", jkl%abc
       jkl%abc(ii) = jkl%abc(ii) + 1
     enddo
   end block
-  print *, "doconcL: ", jkl%abc
+  call print_array(jkl%abc, 'doc loc')
 #endif
 
 #ifdef DOCONC_TMP_REDUCE
@@ -228,7 +228,7 @@ print *, "subr_atm:", jkl%abc
     enddo
     jkl%abc(:) = tmp_arr(:)
   end block
-  print *, "doconcTR:", jkl%abc
+  call print_array(jkl%abc, 'doc t r')
 #endif
 
 #ifdef DOCONC_REDUCE
@@ -240,7 +240,7 @@ print *, "subr_atm:", jkl%abc
       jkl%abc(ii) = jkl%abc(ii) + 1
     enddo
   end block
-  print *, "doconcTR:", jkl%abc
+  call print_array(jkl%abc, 'doc red')
 #endif
 
 
@@ -286,4 +286,17 @@ contains
     enddo
     !$omp end parallel do
   end subroutine test_sub_atomic
+
+  subroutine print_array(tmp_arr, string_)
+    real, dimension(:), intent(in) :: tmp_arr
+    character(len=*), intent(in), optional :: string_
+    character(len=9) :: string
+
+    if(present(string_)) then
+      string = string_ // ":"
+    else
+      string = ""
+    endif
+    print '(2A,*(F5.0,:,"   "))', string, "  ", tmp_arr
+  end subroutine print_array
 end program test_reduce
