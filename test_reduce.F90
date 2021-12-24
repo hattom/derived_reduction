@@ -4,11 +4,11 @@
 #define DOCONC_LOCAL
 #define DOCONC_TMP_REDUCE
 !#define DOCONC_REDUCE
-#define POINTER
-#define POINTER_FUNC
-#define ASSOCIATE
-#define ASSOCIATE_FUNC
-#define ASSOCIATE_SERIAL
+#define _POINTER
+#define _POINTER_FUNC
+#define _ASSOCIATE
+#define _ASSOCIATE_FUNC
+#define _ASSOCIATE_SERIAL
 #endif
 
 #ifdef __GFORTRAN__
@@ -16,16 +16,30 @@
 !#define DOCONC_LOCAL
 !#define DOCONC_TMP_REDUCE
 !#define DOCONC_REDUCE
-!#define POINTER
-!#define POINTER_FUNC
-!#define ASSOCIATE
-#define ASSOCIATE_FUNC
-#define ASSOCIATE_SERIAL
-#define ABC
+!#define _POINTER
+!#define _POINTER_FUNC
+!#define _ASSOCIATE
+#define _ASSOCIATE_FUNC
+#define _ASSOCIATE_SERIAL
 #endif
 
-#if defined(POINTER) || defined(POINTER_FUNC)
-#define TARGET
+#ifdef __INTEL_COMPILER
+#define DOCONC
+! Intel 18.X doesn't support do concurrent local
+#if __INTEL_COMPILER >= 1900
+#define DOCONC_LOCAL
+#endif
+!#define DOCONC_TMP_REDUCE
+!#define DOCONC_REDUCE
+!#define _POINTER
+#define _POINTER_FUNC
+!#define _ASSOCIATE
+#define _ASSOCIATE_FUNC
+#define _ASSOCIATE_SERIAL
+#endif
+
+#if defined(_POINTER) || defined(_POINTER_FUNC)
+#define _TARGET
 #endif
 
 program test_reduce
@@ -36,7 +50,7 @@ program test_reduce
   end type xyz
 
   type(xyz) &
-#ifdef TARGET
+#ifdef _TARGET
     & , target &
 #endif
     & :: jkl
@@ -71,7 +85,6 @@ program test_reduce
   end block
   print *, "omp tmp: ", jkl%abc
 
-#
 call test_sub_omp(jkl%abc(:), nloop, n)
 print *, "subr:    ", jkl%abc
 
@@ -83,7 +96,7 @@ call test_sub_atomic(jkl%abc(:), nloop, n)
 print *, "subr_atm:", jkl%abc
 #endif
 
-#ifdef POINTER
+#ifdef _POINTER
   jkl%abc(:) = 0.0
   block
     integer :: ii
@@ -99,7 +112,7 @@ print *, "subr_atm:", jkl%abc
   print *, "pointer: ", jkl%abc
 #endif
 
-#ifdef POINTER
+#ifdef _POINTER
   jkl%abc(:) = 0.0
   block
     integer :: ii
@@ -113,7 +126,7 @@ print *, "subr_atm:", jkl%abc
   print *, "ptr ser: ", jkl%abc
 #endif
 
-#ifdef POINTER_FUNC
+#ifdef _POINTER_FUNC
   jkl%abc(:) = 0.0
   block
     real, dimension(:), pointer :: tmp_ptr
@@ -145,7 +158,7 @@ print *, "subr_atm:", jkl%abc
   print *, "derived: ", jkl%abc
 #endif
 
-#ifdef ASSOCIATE
+#ifdef _ASSOCIATE
   jkl%abc(:) = 0.0
   block
     integer :: ii
@@ -161,7 +174,7 @@ print *, "subr_atm:", jkl%abc
   print *, "assoc:   ", jkl%abc
 #endif
 
-#ifdef ASSOCIATE_FUNC
+#ifdef _ASSOCIATE_FUNC
   jkl%abc(:) = 0.0
   associate(tmp_arr => jkl%abc)
     call test_sub_omp(tmp_arr(:), nloop, n)
@@ -169,7 +182,7 @@ print *, "subr_atm:", jkl%abc
   print *, "assocfn: ", jkl%abc
 #endif
 
-#ifdef ASSOCIATE_SERIAL
+#ifdef _ASSOCIATE_SERIAL
   jkl%abc(:) = 0.0
   associate(tmp_arr => jkl%abc)
     call test_sub_serial(tmp_arr(:), nloop, n)

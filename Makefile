@@ -6,6 +6,9 @@ ifeq ($(COMPILER), GCC)
 else ifeq ($(COMPILER), NVHPC)
 	FC=nvfortran
 	FFLAGS=-O3 -mp -stdpar=multicore
+else ifeq ($(COMPILER), Intel)
+	FC=ifort
+	FFLAGS=-O3 -qopenmp
 endif
 
 LDFLAGS = 
