@@ -43,6 +43,7 @@ contains
     integer :: i, ii
 
     tmp_arr(:) = ref_arr(:)
+    print *, 'lbound, ubound', lbound(tmp_arr), ubound(tmp_arr)
     !$omp parallel do private(ii) shared(tmp_arr) reduction(+: tmp_arr(1:8))
     do i=1, nloop
     enddo
